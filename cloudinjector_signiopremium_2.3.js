@@ -63,7 +63,9 @@ fetchCSVData();
             // TODO: Find where format tag is added and change there, maybe
             this._copy.tags = this._copy.tags
                 .filter((e) => !e.startsWith('format:')) // remove all format tags
-                .filter((e) => !e.startsWith('rmn_ekran:')); // remove all rmn tags
+                .filter((e) => !e.startsWith('rmn_ekran:')) // remove all rmn tags
+                .filter((e) => !e.startsWith('1CP'))
+                .filter((e) => !e.startsWith('2CP'));
 
             this._set = null;
             this._set = {
