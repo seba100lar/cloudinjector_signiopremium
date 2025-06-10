@@ -147,7 +147,9 @@ fetchCSVData();
             this._set.monitored = this._copy?.monitored ?? false;
 this._set.city = this._copy?.city?.trim() || '';
 this._set.address = this._copy?.address?.trim() || '';
-
+            // Get MPK if exists
+            const matchMpk = this._set.name.match(/Z.{4}/);
+            this._set.mpk = matchMpk ? matchMpk[0] : '';
 if ((this._set.city === '' || this._set.address === '') && this._set.mpk in mpkData) {
     const fallback = mpkData[this._set.mpk];
     if (this._set.city === '') this._set.city = fallback.city;
@@ -157,9 +159,7 @@ if ((this._set.city === '' || this._set.address === '') && this._set.mpk in mpkD
             this._set.tags = this._copy?.tags ?? [];
 
 
-            // Get MPK if exists
-            const matchMpk = this._set.name.match(/Z.{4}/);
-            this._set.mpk = matchMpk ? matchMpk[0] : '';
+
 
             // Get Zone if exists
             const matchZone = this._set.name
@@ -186,6 +186,14 @@ if ((this._set.city === '' || this._set.address === '') && this._set.mpk in mpkD
                 this._set.format = '1x poziom';
             } else if (mediaplan.includes('PROMO')) {
                 this._set.fromat = '1x poziom';
+                // Fallback dla promo i witryna
+						if (!this._set.format) {
+						    if (this._set.zone === 'promo') {
+						        this._set.format = '1x poziom';
+						    } else if (this._set.zone === 'witryna') {
+						        this._set.format = '1x pion';
+						    }
+						}
             } else {
                 this._set.format = '';
             }
