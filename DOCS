@@ -1,0 +1,136 @@
+# Funkcje skryptu Cloudinjector_signiopremium_2.2
+
+## Główny cel
+Skrypt automatyzuje zarządzanie terminalami cyfrowej reklamy w systemie SignioPremium, umożliwiając szybkie kopiowanie i wklejanie konfiguracji między urządzeniami.
+
+## Główne komponenty
+
+### 1. **Zarządzanie danymi MPK i datami instalacji**
+
+#### `fetchCSVData()`
+- **Cel**: Pobiera dane MPK (miasto, adres) z Google Sheets
+- **Źródło**: CSV eksportowany z arkusza Google
+- **Struktura danych**: `mpkData[MPK] = {city, address}`
+- **Funkcjonalność**: Automatyczne wypełnianie pól miasto/adres na podstawie kodu MPK
+
+#### `fetchCSVDatesData()`
+- **Cel**: Pobiera daty instalacji terminali z drugiego arkusza Google
+- **Funkcjonalność**: 
+  - Konwertuje format dat z M/D/R na d.m.r
+  - Przechowuje w `mpkDatesData[MPK] = data_instalacji`
+  - Zawiera szczegółowe logowanie procesu konwersji
+
+#### `convertDateFormat(dateString)`
+- **Cel**: Konwersja formatów dat
+- **Input**: Data w formacie M/D/R (np. "3/15/2024")
+- **Output**: Data w formacie d.m.r (np. "15.03.2024")
+- **Walidacja**: Sprawdza czy data nie jest już w poprawnym formacie
+
+### 2. **API kopiowania/wklejania - `window.injector`**
+
+#### `c()` - Copy (Kopiowanie)
+```javascript
+window.injector.c()
+```
+**Kopiuje do pamięci:**
+- Tagi (filtruje format: i rmn_ekran:)
+- Status monitorowania
+- Miasto i adres
+- Datę
+
+#### `s()` - Set (Wklejanie)
+```javascript
+window.injector.s()
+```
+**Kompleksowy proces wklejania:**
+
+1. **Walidacja**: Sprawdza czy dane zostały skopiowane
+2. **Czyszczenie**: Usuwa niepotrzebne tagi
+3. **Analiza nazwy terminalu**: Wyodrębnia MPK i strefę
+4. **Automatyczne wypełnianie**:
+   - Miasto/adres z bazy MPK (jeśli puste)
+   - Data instalacji z CSV (jeśli brak skopiowanej)
+   - Dzisiejsza data (jako fallback)
+
+5. **Detekcja strefy** z nazwy terminalu:
+   - `menuboard` - ekrany menu
+   - `promo` - ekrany promocyjne  
+   - `witryna` - ekrany w witrynach
+
+6. **Analiza mediaplanu**: Automatyczna detekcja formatu z pola mediaplan
+   - `3x_pion`, `2x_pion`, `1x_pion`
+   - `3x_poziom`, `2x_poziom`, `1x_poziom`
+   - Obsługa wariantów FHD/4K oraz pozycji (lewy/prawy/środek)
+
+7. **Automatyczne tagowanie**:
+   - **Menuboard**: dodaje tag "merry" + odpowiedni tag formatu
+   - **Promo**: dodaje "rmn_ekran:promo_16x9"
+   - **Witryna**: dodaje "rmn_ekran:witryna"
+
+8. **Konfiguracja urządzenia** na podstawie wyboru z listy:
+
+#### `check()` - Walidacja
+```javascript
+window.injector.check()
+```
+**Sprawdza poprawność danych:**
+- Kompletność wszystkich pól
+- Format daty (d.m.r)
+- Zgodność daty z CSV
+- Poprawność nazwy (zawiera MPK i strefę)
+- Prawidłowe tagowanie dla strefy
+- Zgodność typu z producentem i rozmiarem
+
+### 3. **Obsługiwane urządzenia**
+
+#### Samsung Tizen:
+- **QM43C, QM50C, QM32C**: Standardowe ekrany menu
+- **QM43B**: Starszy model Samsung
+- **OM55N-Single**: Specjalny model 55"
+
+#### HIKVISION:
+- **DS-D6043UN-DP, DS-D6050UN-DP**: Modele z DisplayPort
+- **DS-D6043UN-B**: Model podstawowy
+
+#### Utility:
+- **CLEAN**: Czyści wszystkie dane urządzenia
+
+### 4. **Interfejs użytkownika**
+
+#### `insertButtonsIfNeeded()`
+- **Cel**: Automatyczne wstrzykiwanie przycisków do popup'ów
+- **Warunki**: Popup musi zawierać zakładki "Edycja", "Konfiguracja", "RMN"
+- **Elementy**:
+  - Przycisk **Copy** (niebieski efekt po kliknięciu)
+  - Lista wyboru **urządzeń**
+  - Przycisk **Set** (zielony efekt po kliknięciu)  
+  - Przycisk **Check** (walidacja danych)
+
+#### `addClickEffect(button, successText)`
+- **Cel**: Wizualny feedback po kliknięciu
+- **Efekt**: Zmiana tekstu, skalowanie, zmiana koloru tła
+
+### 5. **Funkcje pomocnicze**
+
+#### `getTodayDate()`
+- **Zwraca**: Dzisiejszą datę w formacie d.m.r
+- **Użycie**: Fallback gdy brak daty w copy lub CSV
+
+#### Observer DOM
+- **Cel**: Monitoruje pojawianie się popup'ów
+- **Akcja**: Automatycznie dodaje przyciski do nowych popup'ów
+
+## Przepływ pracy
+
+1. **Inicjalizacja**: Automatyczne pobranie danych MPK i dat instalacji
+2. **Copy**: Skopiowanie konfiguracji z jednego terminalu
+3. **Wybór urządzenia**: Selekcja typu urządzenia z listy
+4. **Set**: Wklejenie + automatyczne wypełnienie + tagowanie
+5. **Check**: Walidacja poprawności wprowadzonych danych
+6. **Zapisanie**: Standardowy zapis w systemie SignioPremium
+
+## Korzyści
+- **Automatyzacja**: Eliminuje ręczne przepisywanie danych
+- **Spójność**: Zapewnia jednolite tagowanie i nazewnictwo
+- **Walidacja**: Redukuje błędy w konfiguracji
+- **Efektywność**: Znacznie przyspiesza proces konfiguracji terminali
