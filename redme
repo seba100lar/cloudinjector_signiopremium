@@ -1,1 +1,84 @@
-WITAM
+# Signio Premium Cloud Injector Userscript (v2.6)
+
+This userscript is designed to assist with configuring terminals within the Signio Premium interface (`https://signio.nanovo.cloud/*`). It injects helper buttons ("Copy", "Set", "Check") and a device selection dropdown into the terminal configuration popup, aiming to streamline the process of setting up multiple terminals with similar base configurations.
+
+**Functionality:**
+
+* **Copy:** Reads specific data (monitored status, city, address, non-format/RMN tags) from the currently open terminal configuration into the browser's memory.
+* **Set:** Populates the current terminal configuration form using data stored in memory by the "Copy" function and combines it with device-specific details (producer, size, type) selected from the dropdown. It also attempts to derive and set MPK, Zone, and Format based on the terminal name and mediaplan information. It automatically sets the date field to the current date.
+* **Check:** Performs basic validation checks on the form data, looking for empty required fields and inconsistencies (e.g., MPK/Zone not matching the name, incorrect tags for the selected zone/format, type/producer/size mismatches). It alerts the user if potential errors are found.
+
+## Prerequisites
+
+* **Google Chrome Browser:** The script is intended for use with Chrome.
+* **"User JavaScript and CSS" Extension:** You need to install this Chrome extension to run the userscript. You can find it on the Chrome Web Store.
+
+## Installation
+
+1.  **Enable Developer Mode for Extensions:**
+    * Open Chrome and navigate to `chrome://extensions/`.
+    * Toggle the "Developer mode" switch in the top-right corner to ON.
+2.  **Open "User JavaScript and CSS" Extension:** Click on the extension's icon in your browser toolbar.
+3.  **Create a New Rule:** Click the "New Rule" button within the extension's interface.
+4.  **Add Name:** Give the rule a descriptive name, for example: `cloudinjector_signiopremium_2.2`.
+5.  **Add URL Pattern:** In the "URL pattern" or similar field for JavaScript, enter: `https://signio.nanovo.cloud/*`
+6.  **Add the Script:** Copy the entire JavaScript code provided for the userscript and paste it into the main JavaScript code area for this rule.
+7.  **Enable & Save:** Ensure the rule is enabled/active and save the changes.
+
+## First Run & Verification
+
+1.  **Reload Signio:** If you already have the `https://signio.nanovo.cloud/` site open, reload the page.
+2.  **Open Developer Console:** Right-click anywhere on the page, select "Inspect" or "Inspect Element", and navigate to the "Console" tab.
+3.  **Check for Log Message:** You should see the following message confirming the script has loaded successfully:
+    ```
+    Cloudinjector_signiopremium_2.2 ready ✅: “Copy”, “Set”, "Check" buttons will show whenever a popup appears.
+    ```
+4.  **Verify Buttons:** Navigate within Signio to open a terminal configuration popup (one that typically has "Edycja", "Konfiguracja", and "RMN" tabs). The "Copy" button, device selection dropdown, "Set" button, and "Check" button should appear in the header area of the popup content.
+
+## Usage
+
+The script's controls will automatically appear in the header section of the terminal configuration/editing popup on the Signio site.
+
+1.  **`Copy` Button:**
+    * Open the configuration popup for a terminal whose basic settings (City, Address, Monitored status, common Tags) you want to reuse.
+    * Click the `Copy` button. This stores these values in memory.
+    * *Title Text:* `Copies values of monitored, mpk, full address, tags (except "format:*", "rmn_ekran:*") and date to memory`
+
+2.  **Device Selection Dropdown:**
+    * Open the configuration popup for the *new* terminal you want to configure.
+    * Select the appropriate device model from the dropdown list (e.g., `QM43C`, `DS-D6043UN-DP`).
+    * Use the `CLEAN` option if you want the `Set` button to clear out device-specific fields (producer, size, type, city, address, tags, mpk, zone, format) instead of setting them based on a model.
+    * *Title Text:* `Select device or CLEAN to remove all device data`
+
+3.  **`Set` Button:**
+    * After selecting a device (or `CLEAN`) from the dropdown, click the `Set` button.
+    * This will:
+        * Paste the City and Address copied earlier.
+        * Set the Monitored status copied earlier.
+        * Clear existing tags and apply the tags copied earlier.
+        * Attempt to auto-detect and fill MPK, Zone, and Format based on the terminal's name and mediaplan.
+        * Apply relevant `rmn_ekran:*` or `format:*` tags based on the detected Zone and Format.
+        * Fill in Producer, Size, and Type based on the device selected in the dropdown.
+        * Set the 'Date' field (custom field ID 21) to the current date.
+    * *Title Text:* `Paste values from memory and selected device from list`
+
+    ⚠️ CAUTION: ⚠️
+    If you do not want to save changes just close the popup, do not click the `SAVE` button.
+
+4.  **`Check` Button:**
+    * After filling the form (manually or using `Set`), click the `Check` button.
+    * The script will validate several fields for completeness and consistency.
+    * If potential errors are found (e.g., empty fields, name doesn't match MPK/Zone, tags mismatch the Zone/Format), an alert box will pop up listing the issues.
+    * *Title Text:* `Checks values for possible errors`
+
+## ⚠️ CAUTION ⚠️
+
+* **VERIFY DATA:** Using this script **does not exempt you from manually checking and verifying** all data entered for the terminal configuration. Ensure all fields are correct before saving.
+* **HOBBY PROJECT:** This script was created as a personal, hobbyist project and is **not an official tool**.
+* **NO OFFICIAL SUPPORT:** This script is **not officially supported** by Nanovo or any Nanovo employee.
+* **USE AS-IS:** If the script does not meet your expectations, does not work correctly, or you desire changes, **please do not contact the original author**. You are free to modify it yourself.
+* **LICENSE:** The script is provided under the **MIT License**. You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software.
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file (or the standard MIT license text) for details.
